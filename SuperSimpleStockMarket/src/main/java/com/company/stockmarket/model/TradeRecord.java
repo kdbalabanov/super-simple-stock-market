@@ -1,6 +1,7 @@
 package main.java.com.company.stockmarket.model;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Instant;
 
 public class TradeRecord {
@@ -8,10 +9,10 @@ public class TradeRecord {
     private Stock stock;
     private Instant timestamp;
     private BigDecimal tradePrice;
-    private long numShares;
+    private BigInteger numShares;
     private TradeType tradeType;
 
-    public TradeRecord(Stock stock, BigDecimal tradePrice, long numShares, TradeType tradeType) {
+    public TradeRecord(Stock stock, BigDecimal tradePrice, BigInteger numShares, TradeType tradeType) {
         this.stock = stock;
         this.timestamp = Instant.now();
         this.tradePrice = tradePrice;
@@ -43,11 +44,11 @@ public class TradeRecord {
         this.tradePrice = tradePrice;
     }
 
-    public long getNumShares() {
+    public BigInteger getNumShares() {
         return numShares;
     }
 
-    public void setNumShares(long numShares) {
+    public void setNumShares(BigInteger numShares) {
         this.numShares = numShares;
     }
 

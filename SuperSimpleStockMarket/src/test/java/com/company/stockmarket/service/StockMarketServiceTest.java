@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.junit.Assert.*;
 
@@ -24,11 +25,11 @@ public class StockMarketServiceTest {
 
     private TradeRecord commonStockTradeRecord;
     private final BigDecimal commonStockTradeRecordPrice = BigDecimal.valueOf(735);
-    private final long commonStockTradeRecordNumShares = 340;
+    private final BigInteger commonStockTradeRecordNumShares = BigInteger.valueOf(350);
 
     private TradeRecord preferredStockTradeRecord;
     private final BigDecimal preferredStockTradeRecordPrice = BigDecimal.valueOf(800);
-    private final long preferredStockTradeRecordNumShares = 500;
+    private final BigInteger preferredStockTradeRecordNumShares = BigInteger.valueOf(1000);
 
     private TradeHistory tradeHistory;
 
@@ -83,8 +84,8 @@ public class StockMarketServiceTest {
         assertTrue(tradeHistory.getTrades().containsKey(preferredStockSymbol));
 
         assertEquals(2, tradeHistory.getTrades().size());
-        assertEquals(1, tradeHistory.getTrades().get(commonStockSymbol).size());
-        assertEquals(1, tradeHistory.getTrades().get(preferredStockSymbol).size());
+        assertEquals(1, tradeHistory.getTradesForStockSymbol(commonStockSymbol).size());
+        assertEquals(1, tradeHistory.getTradesForStockSymbol(preferredStockSymbol).size());
     }
 
 }
