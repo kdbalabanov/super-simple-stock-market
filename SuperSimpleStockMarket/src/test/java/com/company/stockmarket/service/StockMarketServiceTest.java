@@ -115,4 +115,14 @@ public class StockMarketServiceTest {
         assertEquals(3, tradeLedger.getTrades().size());
     }
 
+    @Test
+    public void testTradeLedgerRegisterStock() {
+        tradeLedger.registerStock(commonStock);
+        tradeLedger.registerStock(preferredStock);
+
+        assertTrue(tradeLedger.isStockRegistered(commonStockSymbol));
+        assertTrue(tradeLedger.isStockRegistered(preferredStockSymbol));
+        assertFalse(tradeLedger.isStockRegistered("RandomStockSymbol"));
+    }
+
 }

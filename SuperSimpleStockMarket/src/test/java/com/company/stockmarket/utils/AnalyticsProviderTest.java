@@ -13,6 +13,8 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
 
 import static org.junit.Assert.*;
 
@@ -106,6 +108,27 @@ public class AnalyticsProviderTest {
         tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(644), BigInteger.valueOf(1132), TradeType.SELL));
         tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(71), BigInteger.valueOf(3222), TradeType.SELL));
         assertEquals(expectedResultB, AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol("MSFT")));
+    }
+
+    @Test
+    public void testGetTradesForLastNMinutes() {
+        Instant timestamp = Instant.now();
+
+        TradeRecord tradeRecordA = new TradeRecord("AAPL", BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY);
+        tradeRecordA.setTimestamp(timestamp.minus(Duration.ofMinutes(5)));
+        tradeLedger.addTrade(tradeRecordA);
+
+        TradeRecord tradeRecordB = new TradeRecord("AAPL", BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY);
+        tradeRecordB.setTimestamp(timestamp.minus(Duration.ofMinutes(10)));
+        tradeLedger.addTrade(tradeRecordB);
+
+        TradeRecord tradeRecordC = new TradeRecord("AAPL", BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY);
+        tradeRecordC.setTimestamp(timestamp.minus(Duration.ofMinutes(20)));
+        tradeLedger.addTrade(tradeRecordC);
+
+        assertEquals(1, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 7, tradeLedger.getTradesForStockSymbol("AAPL")).size());
+        assertEquals(2, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 11, tradeLedger.getTradesForStockSymbol("AAPL")).size());
+        assertEquals(3, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 21, tradeLedger.getTradesForStockSymbol("AAPL")).size());
     }
 
 }

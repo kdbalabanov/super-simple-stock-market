@@ -32,6 +32,16 @@ public class TradeLedger {
         this.registeredStocks = registeredStocks;
     }
 
+    public void registerStock(Stock stock) {
+        if (!registeredStocks.containsKey(stock.getStockSymbol())) {
+            registeredStocks.put(stock.getStockSymbol(), stock);
+        }
+    }
+
+    public Boolean isStockRegistered(String stockSymbol) {
+        return registeredStocks.containsKey(stockSymbol);
+    }
+
     public void addTrade(TradeRecord tradeRecord) {
         String stockSymbol = tradeRecord.getStockSymbol();
 
