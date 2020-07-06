@@ -45,6 +45,9 @@ public class StockMarketServiceTest {
         preferredStockTradeRecord = new TradeRecord(preferredStockSymbol, preferredStockTradeRecordPrice, preferredStockTradeRecordNumShares, TradeType.SELL);
 
         tradeLedger = new TradeLedger();
+        tradeLedger.registerStock(commonStock);
+        tradeLedger.registerStock(preferredStock);
+
         tradeLedger.addTrade(commonStockTradeRecord);
         tradeLedger.addTrade(preferredStockTradeRecord);
     }
@@ -106,20 +109,18 @@ public class StockMarketServiceTest {
     @Test
     public void testTradeLedgerAddTrade() {
         TradeRecord tradeRecordA = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(500), BigInteger.valueOf(5000), TradeType.BUY);
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
         tradeLedger.addTrade(tradeRecordA);
         assertEquals(2, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
 
-        Stock stockA = new Stock("MSFT", StockType.COMMON, BigDecimal.valueOf(100), BigDecimal.valueOf(1.15), BigDecimal.valueOf(175));
-        TradeRecord tradeRecordB = new TradeRecord(stockA.getStockSymbol(), BigDecimal.valueOf(777), BigInteger.valueOf(15000), TradeType.BUY);
+        TradeRecord tradeRecordB = new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(777), BigInteger.valueOf(15000), TradeType.BUY);
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
         tradeLedger.addTrade(tradeRecordB);
-        assertEquals(3, tradeLedger.getTrades().size());
+        assertEquals(2, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
     }
 
     @Test
     public void testTradeLedgerRegisterStock() {
-        tradeLedger.registerStock(commonStock);
-        tradeLedger.registerStock(preferredStock);
-
         assertTrue(tradeLedger.isStockRegistered(commonStockSymbol));
         assertTrue(tradeLedger.isStockRegistered(preferredStockSymbol));
         assertFalse(tradeLedger.isStockRegistered("RandomStockSymbol"));

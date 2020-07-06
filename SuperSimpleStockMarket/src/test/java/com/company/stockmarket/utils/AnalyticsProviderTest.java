@@ -40,6 +40,8 @@ public class AnalyticsProviderTest {
         commonStock = new Stock(commonStockSymbol, StockType.COMMON, commonStockLastDividend, commonStockFixedDividend, commonStockParValue);
         preferredStock = new Stock(preferredStockSymbol, StockType.PREFERRED, preferredStockLastDividend, preferredStockFixedDividend, preferredStockParValue);
         tradeLedger = new TradeLedger();
+        tradeLedger.registerStock(commonStock);
+        tradeLedger.registerStock(preferredStock);
     }
 
     @After
@@ -72,13 +74,13 @@ public class AnalyticsProviderTest {
     public void testCalculateGeometricMean() {
         double product = 1 * 2 * 3 * 4 * 5 * 6 * 7;
         BigDecimal expectedResult = AnalyticsProvider.calculateNthRoot(7, BigDecimal.valueOf(product));
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY));
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY));
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(4), BigInteger.valueOf(55), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(5), BigInteger.valueOf(55), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(6), BigInteger.valueOf(55), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(7), BigInteger.valueOf(55), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(4), BigInteger.valueOf(55), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(5), BigInteger.valueOf(55), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(6), BigInteger.valueOf(55), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(7), BigInteger.valueOf(55), TradeType.SELL));
         assertEquals(expectedResult, AnalyticsProvider.calculateGeometricMean(tradeLedger.getAllPrices()));
     }
 
@@ -97,38 +99,38 @@ public class AnalyticsProviderTest {
     @Test
     public void testCalculateVolumeWeighthedStockPrice() {
         BigDecimal expectedResultA = BigDecimal.valueOf((double)(1*100 + 2*100 + 3*100) / (100 + 100 + 100)).setScale(AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY));
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY));
-        tradeLedger.addTrade(new TradeRecord("AAPL", BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY));
-        assertEquals(expectedResultA, AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol("AAPL")));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY));
+        tradeLedger.addTrade(new TradeRecord(commonStockSymbol, BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY));
+        assertEquals(expectedResultA, AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol(commonStockSymbol)));
 
         BigDecimal expectedResultB = BigDecimal.valueOf((double)(433*5534 + 54*3343 + 644*1132 + 71*3222) / (5534 + 3343 + 1132 + 3222)).setScale(AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(433), BigInteger.valueOf(5534), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(54), BigInteger.valueOf(3343), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(644), BigInteger.valueOf(1132), TradeType.SELL));
-        tradeLedger.addTrade(new TradeRecord("MSFT", BigDecimal.valueOf(71), BigInteger.valueOf(3222), TradeType.SELL));
-        assertEquals(expectedResultB, AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol("MSFT")));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(433), BigInteger.valueOf(5534), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(54), BigInteger.valueOf(3343), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(644), BigInteger.valueOf(1132), TradeType.SELL));
+        tradeLedger.addTrade(new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(71), BigInteger.valueOf(3222), TradeType.SELL));
+        assertEquals(expectedResultB, AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol(preferredStockSymbol)));
     }
 
     @Test
     public void testGetTradesForLastNMinutes() {
         Instant timestamp = Instant.now();
 
-        TradeRecord tradeRecordA = new TradeRecord("AAPL", BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY);
+        TradeRecord tradeRecordA = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(1), BigInteger.valueOf(100), TradeType.BUY);
         tradeRecordA.setTimestamp(timestamp.minus(Duration.ofMinutes(5)));
         tradeLedger.addTrade(tradeRecordA);
 
-        TradeRecord tradeRecordB = new TradeRecord("AAPL", BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY);
+        TradeRecord tradeRecordB = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(2), BigInteger.valueOf(100), TradeType.BUY);
         tradeRecordB.setTimestamp(timestamp.minus(Duration.ofMinutes(10)));
         tradeLedger.addTrade(tradeRecordB);
 
-        TradeRecord tradeRecordC = new TradeRecord("AAPL", BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY);
+        TradeRecord tradeRecordC = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(3), BigInteger.valueOf(100), TradeType.BUY);
         tradeRecordC.setTimestamp(timestamp.minus(Duration.ofMinutes(20)));
         tradeLedger.addTrade(tradeRecordC);
 
-        assertEquals(1, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 7, tradeLedger.getTradesForStockSymbol("AAPL")).size());
-        assertEquals(2, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 11, tradeLedger.getTradesForStockSymbol("AAPL")).size());
-        assertEquals(3, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 21, tradeLedger.getTradesForStockSymbol("AAPL")).size());
+        assertEquals(1, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 7, tradeLedger.getTradesForStockSymbol(commonStockSymbol)).size());
+        assertEquals(2, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 11, tradeLedger.getTradesForStockSymbol(commonStockSymbol)).size());
+        assertEquals(3, AnalyticsProvider.getTradesForLastNMinutes(timestamp, 21, tradeLedger.getTradesForStockSymbol(commonStockSymbol)).size());
     }
 
 }

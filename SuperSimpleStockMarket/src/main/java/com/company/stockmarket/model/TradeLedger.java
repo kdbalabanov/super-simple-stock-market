@@ -45,12 +45,16 @@ public class TradeLedger {
     public void addTrade(TradeRecord tradeRecord) {
         String stockSymbol = tradeRecord.getStockSymbol();
 
-        if (trades.containsKey(stockSymbol)) {
-            trades.get(stockSymbol).add(tradeRecord);
+        if (isStockRegistered(stockSymbol)) {
+            if (trades.containsKey(stockSymbol)) {
+                trades.get(stockSymbol).add(tradeRecord);
+            } else {
+                ArrayList<TradeRecord> tradeRecordsList = new ArrayList<>();
+                tradeRecordsList.add(tradeRecord);
+                trades.put(stockSymbol, tradeRecordsList);
+            }
         } else {
-            ArrayList<TradeRecord> tradeRecordsList = new ArrayList<>();
-            tradeRecordsList.add(tradeRecord);
-            trades.put(stockSymbol, tradeRecordsList);
+
         }
     }
 
