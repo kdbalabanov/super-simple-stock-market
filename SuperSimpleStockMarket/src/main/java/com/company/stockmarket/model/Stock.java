@@ -1,6 +1,9 @@
 package main.java.com.company.stockmarket.model;
 
+import main.java.com.company.stockmarket.utils.StockType;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Stock {
 

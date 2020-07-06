@@ -1,6 +1,9 @@
 package test.java.com.company.stockmarket.service;
 
 import main.java.com.company.stockmarket.model.*;
+import main.java.com.company.stockmarket.utils.StockType;
+import main.java.com.company.stockmarket.utils.TradeType;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,19 +34,31 @@ public class StockMarketServiceTest {
     private final BigDecimal preferredStockTradeRecordPrice = BigDecimal.valueOf(800);
     private final BigInteger preferredStockTradeRecordNumShares = BigInteger.valueOf(1000);
 
-    private TradeHistory tradeHistory;
+    private TradeLedger tradeLedger;
 
     @Before
     public void setup() {
         commonStock = new Stock(commonStockSymbol, StockType.COMMON, commonStockLastDividend, commonStockFixedDividend, commonStockParValue);
         preferredStock = new Stock(preferredStockSymbol, StockType.PREFERRED, preferredStockLastDividend, preferredStockFixedDividend, preferredStockParValue);
 
-        commonStockTradeRecord = new TradeRecord(commonStock, commonStockTradeRecordPrice, commonStockTradeRecordNumShares, TradeType.BUY);
-        preferredStockTradeRecord = new TradeRecord(preferredStock, preferredStockTradeRecordPrice, preferredStockTradeRecordNumShares, TradeType.SELL);
+        commonStockTradeRecord = new TradeRecord(commonStockSymbol, commonStockTradeRecordPrice, commonStockTradeRecordNumShares, TradeType.BUY);
+        preferredStockTradeRecord = new TradeRecord(preferredStockSymbol, preferredStockTradeRecordPrice, preferredStockTradeRecordNumShares, TradeType.SELL);
 
-        tradeHistory = new TradeHistory();
-        tradeHistory.addTrade(commonStockTradeRecord);
-        tradeHistory.addTrade(preferredStockTradeRecord);
+        tradeLedger = new TradeLedger();
+        tradeLedger.addTrade(commonStockTradeRecord);
+        tradeLedger.addTrade(preferredStockTradeRecord);
+    }
+
+    @After
+    public void cleanUp() {
+        commonStock = null;
+        preferredStock = null;
+
+        commonStockTradeRecord = null;
+        preferredStockTradeRecord = null;
+
+        tradeLedger.wipeTradeLedger();
+        tradeLedger = null;
     }
 
     @Test
@@ -65,8 +80,8 @@ public class StockMarketServiceTest {
 
     @Test
     public void testTradeRecordInitialization() {
-        assertEquals(commonStockSymbol, commonStockTradeRecord.getStock().getStockSymbol());
-        assertEquals(preferredStockSymbol, preferredStockTradeRecord.getStock().getStockSymbol());
+        assertEquals(commonStockSymbol, commonStockTradeRecord.getStockSymbol());
+        assertEquals(preferredStockSymbol, preferredStockTradeRecord.getStockSymbol());
 
         assertEquals(StockType.COMMON, commonStock.getStockType());
         assertEquals(StockType.PREFERRED, preferredStock.getStockType());
@@ -79,13 +94,25 @@ public class StockMarketServiceTest {
     }
 
     @Test
-    public void testTradeHistoryInitialization() {
-        assertTrue(tradeHistory.getTrades().containsKey(commonStockSymbol));
-        assertTrue(tradeHistory.getTrades().containsKey(preferredStockSymbol));
+    public void testTradeLedgerInitialization() {
+        assertTrue(tradeLedger.getTrades().containsKey(commonStockSymbol));
+        assertTrue(tradeLedger.getTrades().containsKey(preferredStockSymbol));
 
-        assertEquals(2, tradeHistory.getTrades().size());
-        assertEquals(1, tradeHistory.getTradesForStockSymbol(commonStockSymbol).size());
-        assertEquals(1, tradeHistory.getTradesForStockSymbol(preferredStockSymbol).size());
+        assertEquals(2, tradeLedger.getTrades().size());
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
+    }
+
+    @Test
+    public void testTradeLedgerAddTrade() {
+        TradeRecord tradeRecordA = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(500), BigInteger.valueOf(5000), TradeType.BUY);
+        tradeLedger.addTrade(tradeRecordA);
+        assertEquals(2, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
+
+        Stock stockA = new Stock("MSFT", StockType.COMMON, BigDecimal.valueOf(100), BigDecimal.valueOf(1.15), BigDecimal.valueOf(175));
+        TradeRecord tradeRecordB = new TradeRecord(stockA.getStockSymbol(), BigDecimal.valueOf(777), BigInteger.valueOf(15000), TradeType.BUY);
+        tradeLedger.addTrade(tradeRecordB);
+        assertEquals(3, tradeLedger.getTrades().size());
     }
 
 }

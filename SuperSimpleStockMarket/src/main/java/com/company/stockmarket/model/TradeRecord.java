@@ -1,31 +1,33 @@
 package main.java.com.company.stockmarket.model;
 
+import main.java.com.company.stockmarket.utils.TradeType;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 
 public class TradeRecord {
 
-    private Stock stock;
+    private String stockSymbol;
     private Instant timestamp;
     private BigDecimal tradePrice;
     private BigInteger numShares;
     private TradeType tradeType;
 
-    public TradeRecord(Stock stock, BigDecimal tradePrice, BigInteger numShares, TradeType tradeType) {
-        this.stock = stock;
+    public TradeRecord(String stockSymbol, BigDecimal tradePrice, BigInteger numShares, TradeType tradeType) {
+        this.stockSymbol = stockSymbol;
         this.timestamp = Instant.now();
         this.tradePrice = tradePrice;
         this.numShares = numShares;
         this.tradeType = tradeType;
     }
 
-    public Stock getStock() {
-        return stock;
+    public String getStockSymbol() {
+        return stockSymbol;
     }
 
-    public void setStock(Stock stock) {
-        this.stock = stock;
+    public void setStockSymbol(String stockSymbol) {
+        this.stockSymbol = stockSymbol;
     }
 
     public Instant getTimestamp() {

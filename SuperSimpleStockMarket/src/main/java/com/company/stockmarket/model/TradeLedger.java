@@ -1,16 +1,19 @@
 package main.java.com.company.stockmarket.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TradeHistory {
+public class TradeLedger {
 
+    private Map<String, Stock> registeredStocks;
     private Map<String, List<TradeRecord>> trades;
 
-    public TradeHistory() {
+    public TradeLedger() {
         this.trades = new HashMap<>();
+        this.registeredStocks = new HashMap<>();
     }
 
     public Map<String, List<TradeRecord>> getTrades() {
@@ -21,8 +24,16 @@ public class TradeHistory {
         this.trades = trades;
     }
 
+    public Map<String, Stock> getRegisteredStocks() {
+        return registeredStocks;
+    }
+
+    public void setRegisteredStocks(Map<String, Stock> registeredStocks) {
+        this.registeredStocks = registeredStocks;
+    }
+
     public void addTrade(TradeRecord tradeRecord) {
-        String stockSymbol = tradeRecord.getStock().getStockSymbol();
+        String stockSymbol = tradeRecord.getStockSymbol();
 
         if (trades.containsKey(stockSymbol)) {
             trades.get(stockSymbol).add(tradeRecord);
@@ -40,4 +51,22 @@ public class TradeHistory {
 
         return null;
     }
+
+    public List<BigDecimal> getAllPrices() {
+        List<BigDecimal> allPrices = new ArrayList<>();
+
+        for (Map.Entry<String, List<TradeRecord>> tradeRecords : trades.entrySet()) {
+            for (TradeRecord tradeRecord : tradeRecords.getValue()) {
+                allPrices.add(tradeRecord.getTradePrice());
+            }
+        }
+
+        return allPrices;
+    }
+
+    public void wipeTradeLedger() {
+        trades.clear();
+        registeredStocks.clear();
+    }
+
 }
