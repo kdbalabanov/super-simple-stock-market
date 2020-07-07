@@ -35,6 +35,7 @@ public class StockMarketServiceTest {
     private final BigInteger preferredStockTradeRecordNumShares = BigInteger.valueOf(1000);
 
     private TradeLedger tradeLedger;
+    private TradeSimulator tradeSimulator;
 
     @Before
     public void setup() {
@@ -48,8 +49,7 @@ public class StockMarketServiceTest {
         tradeLedger.registerStock(commonStock);
         tradeLedger.registerStock(preferredStock);
 
-        tradeLedger.addTrade(commonStockTradeRecord);
-        tradeLedger.addTrade(preferredStockTradeRecord);
+        tradeSimulator = new TradeSimulator(tradeLedger, 0.01, 1000.00, 1, 10000);
     }
 
     @After
@@ -98,7 +98,10 @@ public class StockMarketServiceTest {
 
     @Test
     public void testTradeLedgerInitialization() {
+        tradeLedger.addTrade(commonStockTradeRecord);
         assertTrue(tradeLedger.getTrades().containsKey(commonStockSymbol));
+
+        tradeLedger.addTrade(preferredStockTradeRecord);
         assertTrue(tradeLedger.getTrades().containsKey(preferredStockSymbol));
 
         assertEquals(2, tradeLedger.getTrades().size());
@@ -109,14 +112,12 @@ public class StockMarketServiceTest {
     @Test
     public void testTradeLedgerAddTrade() {
         TradeRecord tradeRecordA = new TradeRecord(commonStockSymbol, BigDecimal.valueOf(500), BigInteger.valueOf(5000), TradeType.BUY);
-        assertEquals(1, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
         tradeLedger.addTrade(tradeRecordA);
-        assertEquals(2, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
 
         TradeRecord tradeRecordB = new TradeRecord(preferredStockSymbol, BigDecimal.valueOf(777), BigInteger.valueOf(15000), TradeType.BUY);
-        assertEquals(1, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
         tradeLedger.addTrade(tradeRecordB);
-        assertEquals(2, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
+        assertEquals(1, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
     }
 
     @Test
@@ -124,6 +125,13 @@ public class StockMarketServiceTest {
         assertTrue(tradeLedger.isStockRegistered(commonStockSymbol));
         assertTrue(tradeLedger.isStockRegistered(preferredStockSymbol));
         assertFalse(tradeLedger.isStockRegistered("RandomStockSymbol"));
+    }
+
+    @Test
+    public void testTradeSimulatorGenerateTrades() {
+        tradeSimulator.generateTrades(100);
+        assertEquals(100, tradeLedger.getTradesForStockSymbol(commonStockSymbol).size());
+        assertEquals(100, tradeLedger.getTradesForStockSymbol(preferredStockSymbol).size());
     }
 
 }
