@@ -1,73 +1,59 @@
 package main.java.com.company.stockmarket.service;
 
-import main.java.com.company.stockmarket.exceptions.StockMarketError;
-import main.java.com.company.stockmarket.core.Stock;
-import main.java.com.company.stockmarket.core.TradeLedger;
-import main.java.com.company.stockmarket.core.TradeRecord;
-import main.java.com.company.stockmarket.core.TradeSimulator;
+import main.java.com.company.stockmarket.core.*;
 import main.java.com.company.stockmarket.utils.AnalyticsProvider;
 import main.java.com.company.stockmarket.utils.StockType;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
-
+/**
+ * The StockMarketService glues everything together and runs it
+ * It is a Singleton - initialised only once
+ *
+ * The following assumptions are made:
+ * 1. There is no user input
+ * 2. Trades are randomly generated for all specified stocks
+ * 3. There is the possibility for calculations with really high values, hence the use of
+ * BigDecimal and BigInteger
+ */
 public class StockMarketService {
     private static StockMarketService instance;
-    private TradeLedger tradeLedger;
-    private TradeSimulator tradeSimulator;
+    private final TradeLedger TRADE_LEDGER;
+    private final TradeSimulator TRADE_SIMULATOR;
 
-    public static StockMarketService getInstance() {
+    private StockMarketService() {
+        this.TRADE_LEDGER = new TradeLedger();
+        this.TRADE_SIMULATOR = new TradeSimulator(TRADE_LEDGER, 0.01, 25, 1, 100000);
+    }
+
+    public static synchronized StockMarketService getInstance() {
         if (instance == null) {
             instance = new StockMarketService();
         }
         return instance;
     }
 
-    public void run() throws StockMarketError {
+    public void run() {
         init();
-        displayLedger();
+        TRADE_SIMULATOR.generateTrades(5);
+        System.out.println("All Shares Index: " + AnalyticsProvider.calculateGeometricMean(TRADE_LEDGER.getAllPrices()));
     }
 
+    /**
+     * Initialise the sample stocks mentioned in the requirements
+     */
     private void init() {
-        this.tradeLedger = new TradeLedger();
-        this.tradeSimulator = new TradeSimulator(tradeLedger, 0.01, 5.00, 1, 100000);
+        Stock stockTEA = new CommonStock("TEA", StockType.COMMON, BigDecimal.valueOf(0), BigDecimal.valueOf(1.00));
+        Stock stockPOP = new CommonStock("POP", StockType.COMMON, BigDecimal.valueOf(0.08), BigDecimal.valueOf(1.00));
+        Stock stockALE = new CommonStock("ALE", StockType.COMMON, BigDecimal.valueOf(0.23), BigDecimal.valueOf(0.60));
+        Stock stockGIN = new PreferredStock("GIN", StockType.PREFERRED, BigDecimal.valueOf(0.08), BigDecimal.valueOf(1.02), BigDecimal.valueOf(1.00));
+        Stock stockJOE = new CommonStock("JOE", StockType.COMMON, BigDecimal.valueOf(0.13), BigDecimal.valueOf(1.00));
 
-        initialiseSampleStocks();
-        tradeSimulator.generateTrades(5);
+        TRADE_LEDGER.registerStock(stockTEA);
+        TRADE_LEDGER.registerStock(stockPOP);
+        TRADE_LEDGER.registerStock(stockALE);
+        TRADE_LEDGER.registerStock(stockGIN);
+        TRADE_LEDGER.registerStock(stockJOE);
     }
 
-    private void initialiseSampleStocks() {
-        Stock stockTEA = new Stock("TEA", StockType.COMMON, BigDecimal.valueOf(0), BigDecimal.valueOf(0), BigDecimal.valueOf(1.00));
-        Stock stockPOP = new Stock("POP", StockType.COMMON, BigDecimal.valueOf(0.08), BigDecimal.valueOf(0), BigDecimal.valueOf(1.00));
-        Stock stockALE = new Stock("ALE", StockType.COMMON, BigDecimal.valueOf(0.23), BigDecimal.valueOf(0), BigDecimal.valueOf(0.60));
-        Stock stockGIN = new Stock("GIN", StockType.PREFERRED, BigDecimal.valueOf(0.08), BigDecimal.valueOf(1.02), BigDecimal.valueOf(1.00));
-        Stock stockJOE = new Stock("JOE", StockType.COMMON, BigDecimal.valueOf(0.13), BigDecimal.valueOf(0), BigDecimal.valueOf(1.00));
-
-        tradeLedger.registerStock(stockTEA);
-        tradeLedger.registerStock(stockPOP);
-        tradeLedger.registerStock(stockALE);
-        tradeLedger.registerStock(stockGIN);
-        tradeLedger.registerStock(stockJOE);
-    }
-
-    private void displayLedger() {
-        Map<String, List<TradeRecord>> trades  = tradeLedger.getTrades();
-        for (Map.Entry<String, List<TradeRecord>> tradeRecords : trades.entrySet()) {
-            for (TradeRecord tradeRecord : tradeRecords.getValue()) {
-                String stockSymbol = tradeRecord.getStockSymbol();
-                Stock stock = tradeLedger.getRegisteredStocks().get(stockSymbol);
-                BigDecimal stockPrice = tradeRecord.getTradePrice();
-                BigDecimal dividendYield = AnalyticsProvider.calculateDividendYield(stock, stockPrice);
-                BigDecimal priceEarningsRatio = AnalyticsProvider.calculatePriceEarningsRatio(stock, stockPrice);
-                BigDecimal volumeWeightedPrice = AnalyticsProvider.calculateVolumeWeighthedStockPrice(tradeLedger.getTradesForStockSymbol(stockSymbol));
-
-                System.out.println("Trade Record for " + stockSymbol + " - Price: " + tradeRecord.getTradePrice() +
-                        " Quantity: " + tradeRecord.getNumShares() + " Dividend Yield: " + dividendYield +
-                        " Price Earnings Ratio: " + priceEarningsRatio + " Volume Weighted Price: " + volumeWeightedPrice);
-            }
-        }
-        System.out.println("All Shares Index: " + AnalyticsProvider.calculateGeometricMean(tradeLedger.getAllPrices()));
-    }
 }

@@ -1,6 +1,7 @@
 package test.java.com.company.stockmarket.service;
 
 import main.java.com.company.stockmarket.core.*;
+import main.java.com.company.stockmarket.utils.AnalyticsProvider;
 import main.java.com.company.stockmarket.utils.StockType;
 import main.java.com.company.stockmarket.utils.TradeType;
 import org.junit.After;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 
 import static org.junit.Assert.*;
 
@@ -17,7 +19,6 @@ public class StockMarketServiceTest {
     private Stock commonStock;
     private final String commonStockSymbol = "CommonStockSymbol";
     private final BigDecimal commonStockLastDividend = BigDecimal.valueOf(5);
-    private final BigDecimal commonStockFixedDividend = BigDecimal.valueOf(0);
     private final BigDecimal commonStockParValue = BigDecimal.valueOf(100);
 
     private Stock preferredStock;
@@ -39,8 +40,8 @@ public class StockMarketServiceTest {
 
     @Before
     public void setup() {
-        commonStock = new Stock(commonStockSymbol, StockType.COMMON, commonStockLastDividend, commonStockFixedDividend, commonStockParValue);
-        preferredStock = new Stock(preferredStockSymbol, StockType.PREFERRED, preferredStockLastDividend, preferredStockFixedDividend, preferredStockParValue);
+        commonStock = new CommonStock(commonStockSymbol, StockType.COMMON, commonStockLastDividend, commonStockParValue);
+        preferredStock = new PreferredStock(preferredStockSymbol, StockType.PREFERRED, preferredStockLastDividend, preferredStockFixedDividend, preferredStockParValue);
 
         commonStockTradeRecord = new TradeRecord(commonStockSymbol, commonStockTradeRecordPrice, commonStockTradeRecordNumShares, TradeType.BUY);
         preferredStockTradeRecord = new TradeRecord(preferredStockSymbol, preferredStockTradeRecordPrice, preferredStockTradeRecordNumShares, TradeType.SELL);
@@ -73,12 +74,28 @@ public class StockMarketServiceTest {
         assertEquals(StockType.PREFERRED, preferredStock.getStockType());
 
         assertEquals(commonStockLastDividend, commonStock.getLastDividend());
-        assertEquals(commonStockFixedDividend, commonStock.getFixedDividend());
         assertEquals(commonStockParValue, commonStock.getParValue());
 
         assertEquals(preferredStockLastDividend, preferredStock.getLastDividend());
-        assertEquals(preferredStockFixedDividend, preferredStock.getFixedDividend());
         assertEquals(preferredStockParValue, preferredStock.getParValue());
+    }
+
+    @Test
+    public void testCalculateDividendYield() {
+        BigDecimal commonStockExpectedResult = commonStockLastDividend.divide(commonStockTradeRecordPrice, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
+        assertEquals(commonStockExpectedResult, commonStock.calculateDividendYield(commonStockTradeRecordPrice));
+
+        BigDecimal preferredStockExpectedResult = (preferredStockFixedDividend.multiply(preferredStockParValue)).divide(preferredStockTradeRecordPrice, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
+        assertEquals(preferredStockExpectedResult, preferredStock.calculateDividendYield(preferredStockTradeRecordPrice));
+    }
+
+    @Test
+    public void testCalculatePriceEarningsRatio() {
+        BigDecimal commonStockExpectedResult = commonStockTradeRecordPrice.divide(commonStockLastDividend, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
+        assertEquals(commonStockExpectedResult, commonStock.calculatePriceEarningsRatio(commonStockTradeRecordPrice));
+
+        BigDecimal preferredStockExpectedResult = preferredStockTradeRecordPrice.divide(preferredStockLastDividend, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
+        assertEquals(preferredStockExpectedResult, preferredStock.calculatePriceEarningsRatio(preferredStockTradeRecordPrice));
     }
 
     @Test

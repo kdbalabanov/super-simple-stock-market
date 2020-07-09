@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
 
+/**
+ * Represents the collection of data associated with a Trade
+ */
 public class TradeRecord {
 
     private String stockSymbol;
