@@ -21,9 +21,18 @@ public class StockMarketService {
     private final TradeLedger TRADE_LEDGER;
     private final TradeSimulator TRADE_SIMULATOR;
 
+    // The minimum used for random price generation
+    private final double MIN_PRICE = 0.01;
+    // The maximum used for random price generation
+    private final double MAX_PRICE = 25;
+    // The minimum used for random number of shares generation
+    private final long MIN_NUM_SHARES = 1;
+    // The maximum used for random number of shares generation
+    private final long MAX_NUM_SHARES = 100000;
+
     private StockMarketService() {
         this.TRADE_LEDGER = new TradeLedger();
-        this.TRADE_SIMULATOR = new TradeSimulator(TRADE_LEDGER, 0.01, 25, 1, 100000);
+        this.TRADE_SIMULATOR = new TradeSimulator(TRADE_LEDGER, MIN_PRICE, MAX_PRICE, MIN_NUM_SHARES, MAX_NUM_SHARES);
     }
 
     public static synchronized StockMarketService getInstance() {
