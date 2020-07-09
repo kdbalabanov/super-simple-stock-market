@@ -1,10 +1,10 @@
 package main.java.com.company.stockmarket.service;
 
 import main.java.com.company.stockmarket.exceptions.StockMarketError;
-import main.java.com.company.stockmarket.model.Stock;
-import main.java.com.company.stockmarket.model.TradeLedger;
-import main.java.com.company.stockmarket.model.TradeRecord;
-import main.java.com.company.stockmarket.model.TradeSimulator;
+import main.java.com.company.stockmarket.core.Stock;
+import main.java.com.company.stockmarket.core.TradeLedger;
+import main.java.com.company.stockmarket.core.TradeRecord;
+import main.java.com.company.stockmarket.core.TradeSimulator;
 import main.java.com.company.stockmarket.utils.AnalyticsProvider;
 import main.java.com.company.stockmarket.utils.StockType;
 

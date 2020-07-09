@@ -1,7 +1,7 @@
 package main.java.com.company.stockmarket.utils;
 
-import main.java.com.company.stockmarket.model.Stock;
-import main.java.com.company.stockmarket.model.TradeRecord;
+import main.java.com.company.stockmarket.core.Stock;
+import main.java.com.company.stockmarket.core.TradeRecord;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,14 +25,14 @@ public class AnalyticsProvider {
                 case COMMON:
                     BigDecimal lastDividend = stock.getLastDividend();
                     if (lastDividend != null && lastDividend.compareTo(BigDecimal.ZERO) > 0) {
-                        dividendYield = lastDividend.divide(tradePrice, SCALE, RoundingMode.HALF_UP);
+                        dividendYield = lastDividend.divide(tradePrice, SCALE * 3, RoundingMode.HALF_UP);
                     }
                     break;
                 case PREFERRED:
                     BigDecimal fixedDividend = stock.getFixedDividend();
                     BigDecimal parValue = stock.getParValue();
                     if (fixedDividend != null && fixedDividend.compareTo(BigDecimal.ZERO) > 0 && parValue != null && parValue.compareTo(BigDecimal.ZERO) > 0) {
-                        dividendYield = (fixedDividend.multiply(parValue)).divide(tradePrice, SCALE, RoundingMode.HALF_UP);
+                        dividendYield = (fixedDividend.multiply(parValue)).divide(tradePrice, SCALE * 3, RoundingMode.HALF_UP);
                     }
                     break;
                 default:
@@ -50,7 +50,7 @@ public class AnalyticsProvider {
         BigDecimal lastDividend = stock.getLastDividend();
 
         if (tradePrice != null && tradePrice.compareTo(BigDecimal.ZERO) > 0 && lastDividend != null && lastDividend.compareTo(BigDecimal.ZERO) > 0) {
-            priceEarningsRatio = tradePrice.divide(lastDividend, SCALE, RoundingMode.HALF_UP);
+            priceEarningsRatio = tradePrice.divide(lastDividend, SCALE * 3, RoundingMode.HALF_UP);
         } else {
 
         }
@@ -74,11 +74,11 @@ public class AnalyticsProvider {
         BigDecimal nthRoot;
         nthRoot = allPricesProduct.divide(allPricesProduct, RoundingMode.HALF_EVEN);
         BigDecimal temp = BigDecimal.ZERO;
-        BigDecimal e = new BigDecimal("0.1");
+        BigDecimal e = BigDecimal.valueOf(0.1);
 
         do {
             temp = nthRoot;
-            nthRoot = nthRoot.add(allPricesProduct.subtract(nthRoot.pow(power)).divide(new BigDecimal(power).multiply(nthRoot.pow(power - 1)), SCALE, RoundingMode.HALF_EVEN));
+            nthRoot = nthRoot.add(allPricesProduct.subtract(nthRoot.pow(power)).divide(BigDecimal.valueOf(power).multiply(nthRoot.pow(power - 1)), SCALE, RoundingMode.HALF_EVEN));
         } while (nthRoot.subtract(temp).abs().compareTo(e) > 0);
 
         return nthRoot.setScale(SCALE, RoundingMode.HALF_EVEN);

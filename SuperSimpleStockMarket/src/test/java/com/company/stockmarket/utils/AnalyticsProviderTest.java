@@ -1,8 +1,8 @@
 package test.java.com.company.stockmarket.utils;
 
-import main.java.com.company.stockmarket.model.Stock;
-import main.java.com.company.stockmarket.model.TradeLedger;
-import main.java.com.company.stockmarket.model.TradeRecord;
+import main.java.com.company.stockmarket.core.Stock;
+import main.java.com.company.stockmarket.core.TradeLedger;
+import main.java.com.company.stockmarket.core.TradeRecord;
 import main.java.com.company.stockmarket.utils.AnalyticsProvider;
 import main.java.com.company.stockmarket.utils.StockType;
 import main.java.com.company.stockmarket.utils.TradeType;
@@ -54,19 +54,19 @@ public class AnalyticsProviderTest {
 
     @Test
     public void testCalculateDividendYield() {
-        BigDecimal commonStockExpectedResult = commonStockLastDividend.divide(commonStockTradeRecordPrice, AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
+        BigDecimal commonStockExpectedResult = commonStockLastDividend.divide(commonStockTradeRecordPrice, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
         assertEquals(commonStockExpectedResult, AnalyticsProvider.calculateDividendYield(commonStock, commonStockTradeRecordPrice));
 
-        BigDecimal preferredStockExpectedResult = (preferredStockFixedDividend.multiply(preferredStockParValue)).divide(preferredStockTradeRecordPrice, AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
+        BigDecimal preferredStockExpectedResult = (preferredStockFixedDividend.multiply(preferredStockParValue)).divide(preferredStockTradeRecordPrice, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
         assertEquals(preferredStockExpectedResult, AnalyticsProvider.calculateDividendYield(preferredStock, preferredStockTradeRecordPrice));
     }
 
     @Test
     public void testCalculatePriceEarningsRatio() {
-        BigDecimal commonStockExpectedResult = commonStockTradeRecordPrice.divide(commonStockLastDividend, AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
+        BigDecimal commonStockExpectedResult = commonStockTradeRecordPrice.divide(commonStockLastDividend, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
         assertEquals(commonStockExpectedResult, AnalyticsProvider.calculatePriceEarningsRatio(commonStock, commonStockTradeRecordPrice));
 
-        BigDecimal preferredStockExpectedResult = preferredStockTradeRecordPrice.divide(preferredStockLastDividend, AnalyticsProvider.SCALE, RoundingMode.HALF_UP);
+        BigDecimal preferredStockExpectedResult = preferredStockTradeRecordPrice.divide(preferredStockLastDividend, AnalyticsProvider.SCALE * 3, RoundingMode.HALF_UP);
         assertEquals(preferredStockExpectedResult, AnalyticsProvider.calculatePriceEarningsRatio(preferredStock, preferredStockTradeRecordPrice));
     }
 
@@ -86,14 +86,17 @@ public class AnalyticsProviderTest {
 
     @Test
     public void testCalculateNthRoot() {
-        BigDecimal expectedResultA = BigDecimal.valueOf(Math.pow(8, 1.00/3.00)).setScale(AnalyticsProvider.SCALE, RoundingMode.HALF_EVEN);
+        BigDecimal expectedResultA = BigDecimal.valueOf(Math.pow(8, 1.00/3.00)).setScale(2, RoundingMode.HALF_EVEN);
         assertEquals(expectedResultA, AnalyticsProvider.calculateNthRoot(3, BigDecimal.valueOf(8)));
 
-        BigDecimal expectedResultB =  BigDecimal.valueOf(Math.pow(248832, 1.00/5.00)).setScale(AnalyticsProvider.SCALE, RoundingMode.HALF_EVEN);
+        BigDecimal expectedResultB =  BigDecimal.valueOf(Math.pow(248832, 1.00/5.00)).setScale(2, RoundingMode.HALF_EVEN);
         assertEquals(expectedResultB, AnalyticsProvider.calculateNthRoot(5, BigDecimal.valueOf(248832)));
 
-        BigDecimal expectedResultC = BigDecimal.valueOf(Math.pow(15, 1.00/3.00)).setScale(AnalyticsProvider.SCALE, RoundingMode.HALF_EVEN);
+        BigDecimal expectedResultC = BigDecimal.valueOf(Math.pow(15, 1.00/3.00)).setScale(2, RoundingMode.HALF_EVEN);
         assertEquals(expectedResultC, AnalyticsProvider.calculateNthRoot(3, BigDecimal.valueOf(15)));
+
+        BigDecimal expectedResultD = BigDecimal.valueOf(Math.pow(1124134553, 1.00/7.00)).setScale(2, RoundingMode.HALF_EVEN);
+        assertEquals(expectedResultD, AnalyticsProvider.calculateNthRoot(7, BigDecimal.valueOf(1124134553)));
     }
 
     @Test

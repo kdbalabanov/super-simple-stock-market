@@ -1,6 +1,6 @@
 package test.java.com.company.stockmarket.service;
 
-import main.java.com.company.stockmarket.model.*;
+import main.java.com.company.stockmarket.core.*;
 import main.java.com.company.stockmarket.utils.StockType;
 import main.java.com.company.stockmarket.utils.TradeType;
 import org.junit.After;

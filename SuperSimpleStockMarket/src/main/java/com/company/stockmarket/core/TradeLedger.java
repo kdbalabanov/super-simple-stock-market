@@ -1,4 +1,4 @@
-package main.java.com.company.stockmarket.model;
+package main.java.com.company.stockmarket.core;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
