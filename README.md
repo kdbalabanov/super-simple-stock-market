@@ -27,5 +27,3 @@ The unit tests can be found in the SuperSimpleStockMarket/src/test folder. The J
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/kdbalabanov/super-simple-stock-market/blob/master/LICENSE) file for details
-
-## Acknowledgments
