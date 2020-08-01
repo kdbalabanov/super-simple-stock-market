@@ -20,6 +20,10 @@ Java 11
 
 Note that you can customise parameters if needed (how many trades to simulate, minimum price to generate, maximum price to generate etc.).
 
+## Running the tests
+
+The unit tests can be found in the SuperSimpleStockMarket/src/test folder. The JUnit testing framework was used.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/kdbalabanov/super-simple-stock-market/blob/master/LICENSE) file for details
